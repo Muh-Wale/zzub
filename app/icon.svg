@@ -1,0 +1,77 @@
+<svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="140" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10131A"/>
+      <stop offset="1" stop-color="#1C2333"/>
+    </linearGradient>
+
+    <!-- glassy left Z -->
+    <linearGradient id="glassZ" x1="40" y1="48" x2="86" y2="82" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="0.55" stop-color="#E9F1FF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <!-- little shine line -->
+    <linearGradient id="shine" x1="42" y1="48" x2="78" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- card -->
+  <rect x="10" y="10" width="120" height="120" rx="32" fill="url(#bg)"/>
+
+  <!-- LEFT Z (glassy, rounded) -->
+  <!-- this is the same Z idea as yours, but with curves and transparency -->
+  <path
+    d="M46 50
+       H78
+       Q82 50 82 54
+       L63 70
+       H78
+       Q82 70 82 74
+       V78
+       H44
+       Q40 78 40 74
+       L59 58
+       H46
+       Q42 58 42 54
+       V52
+       Q42 50 46 50Z"
+    fill="url(#glassZ)"
+    stroke="rgba(255,255,255,0.35)"
+    stroke-width="1.2"
+    stroke-linejoin="round"
+  />
+
+  <!-- glass shine on left Z -->
+  <path d="M48 53C60 50 70 52 80 57" stroke="url(#shine)" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+
+  <!-- RIGHT Z (solid, but softened) -->
+  <path
+    d="M94 90
+       H62
+       Q58 90 58 86
+       L76 72
+       H62
+       Q58 72 58 68
+       V64
+       Q58 62 60 62
+       H100
+       Q104 62 104 66
+       L86 80
+       H94
+       Q98 80 98 84
+       V88
+       Q98 90 94 90Z"
+    fill="#5E8BFF"
+    stroke="#BFD1FF"
+    stroke-width="1"
+    stroke-linejoin="round"
+  />
+
+  <!-- tiny accent dot -->
+  <circle cx="104" cy="38" r="4.5" fill="#5E8BFF" opacity="0.6"/>
+</svg>

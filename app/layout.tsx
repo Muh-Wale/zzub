@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   DM_Sans,
   Manrope,
   Geist_Mono,
   Chakra_Petch,
-  Playfair_Display_SC
+  Playfair_Display_SC,
 } from "next/font/google";
 import "./globals.css";
 
@@ -31,7 +32,7 @@ const logoFont = Chakra_Petch({
 });
 
 export const metadata: Metadata = {
-  title: "Zzub",
+  title: "zzub",
   description: "Prediction markets explorer",
 };
 
@@ -50,29 +51,26 @@ export default function RootLayout({
         <div className="mx-auto max-w-6xl px-4">
           {/* sticky, frosted header */}
           <header className="sticky top-0 z-50 mb-6">
-            <div className="flex items-center justify-between h-16 rounded-b-xl border-b border-slate-200/60 bg-white/85 backdrop-blur-xl dark:bg-slate-900/45 dark:border-slate-700/40 px-5">
-              <a
+            <div className="flex h-16 items-center justify-between rounded-b-xl border-b border-slate-200/60 bg-white/85 px-5 backdrop-blur-xl dark:border-slate-700/40 dark:bg-slate-900/45">
+              <Link
                 href="/"
-                className="logo font-logo text-xl tracking-[0.08em] leading-none text-slate-900 dark:text-slate-50"
+                className="logo font-logo text-xl leading-none tracking-[0.08em] text-slate-900 dark:text-slate-50"
               >
                 zzub
-              </a>
+              </Link>
               <nav className="flex items-center gap-4 text-sm font-medium text-slate-700 dark:text-slate-200">
-                <a href="/" className="hover:text-slate-950 dark:hover:text-white">
+                <Link
+                  href="/"
+                  className="hover:text-slate-950 dark:hover:text-white"
+                >
                   Markets
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/traders"
                   className="hover:text-slate-950 dark:hover:text-white"
                 >
                   Top Traders
-                </a>
-                <a
-                  href="/unpaid"
-                  className="hover:text-slate-950 dark:hover:text-white"
-                >
-                  High Value Unpaid
-                </a>
+                </Link>
               </nav>
             </div>
           </header>

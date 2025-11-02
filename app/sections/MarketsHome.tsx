@@ -14,6 +14,9 @@ export default function MarketsHome() {
   const [selectedLeader, setSelectedLeader] = useState<LeaderUser | undefined>();
   const [leaderTradesToday, setLeaderTradesToday] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [leadersPage, setLeadersPage] = useState(1);
+  const [leadersDisplayCount, setLeadersDisplayCount] = useState(10);
+  const [loadingMoreLeaders, setLoadingMoreLeaders] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -30,6 +33,8 @@ export default function MarketsHome() {
         setTags(t);
         setLeaders(l);
         setSelectedLeader(l[0]);
+        setLeadersPage(1);
+        setLeadersDisplayCount(Math.min(10, l.length || 10));
       } finally {
         if (mounted) setLoading(false);
       }
@@ -51,6 +56,30 @@ export default function MarketsHome() {
     })();
     return () => { mounted = false; };
   }, [selectedLeader]);
+
+  // show next 10 leaders; fetch more if needed
+  const handleShowMoreLeaders = async () => {
+    if (loadingMoreLeaders) return;
+    if (leadersDisplayCount + 10 <= leaders.length) {
+      setLeadersDisplayCount((c) => c + 10);
+      return;
+    }
+    setLoadingMoreLeaders(true);
+    try {
+      const nextPage = leadersPage + 1;
+      const more = await fetchLeaderboard('weekly', nextPage, 10);
+      setLeaders((prev) => [...prev, ...more]);
+      setLeadersPage(nextPage);
+      setLeadersDisplayCount((c) => c + (more?.length || 0));
+    } finally {
+      setLoadingMoreLeaders(false);
+    }
+  };
+
+  // reduce visible leaders by 10 but not below 10
+  const handleShowFewerLeaders = () => {
+    setLeadersDisplayCount((c) => Math.max(10, c - 10));
+  };
 
   const filteredMarkets = useMemo(() => {
     if (!tag) return markets;
@@ -99,7 +128,7 @@ export default function MarketsHome() {
 
         {/* trader pills */}
         <div className="flex flex-wrap gap-2">
-          {leaders.map((u) => (
+          {leaders.slice(0, leadersDisplayCount).map((u) => (
             <TraderBubble
               key={u.user_id}
               leader={u}
@@ -107,6 +136,34 @@ export default function MarketsHome() {
               onSelect={setSelectedLeader}
             />
           ))}
+          <button
+            onClick={handleShowMoreLeaders}
+            disabled={loadingMoreLeaders}
+            className={`
+              flex items-center gap-2 rounded-full border px-3 py-1.5
+              backdrop-blur-md transition-colors cursor-pointer
+              bg-slate-700/30 text-slate-100 border-slate-700/40
+              hover:bg-gradient-to-r hover:from-sky-400/40 hover:via-sky-300/30 hover:to-emerald-300/30
+              hover:text-white/90 hover:border-sky-200/20 hover:shadow-sm
+              ${loadingMoreLeaders ? 'opacity-60 cursor-not-allowed' : ''}
+            `}
+          >
+            <span className="text-sm font-medium">+10</span>
+          </button>
+          {leadersDisplayCount > 10 && (
+            <button
+              onClick={handleShowFewerLeaders}
+              className={`
+                flex items-center gap-2 rounded-full border px-3 py-1.5
+                backdrop-blur-md transition-colors cursor-pointer
+                bg-slate-700/30 text-slate-100 border-slate-700/40
+                hover:bg-gradient-to-r hover:from-sky-400/40 hover:via-sky-300/30 hover:to-emerald-300/30
+                hover:text-white/90 hover:border-sky-200/20 hover:shadow-sm
+              `}
+            >
+              <span className="text-sm font-medium">-10</span>
+            </button>
+          )}
         </div>
 
         {/* glass panel */}
@@ -206,4 +263,3 @@ export default function MarketsHome() {
     </div>
   );
 }
-

@@ -22,6 +22,9 @@ export default function TradersPage() {
   const [loadingTrades, setLoadingTrades] = useState(false);
   const [page, setPage] = useState(1);
   const [tradeFilter, setTradeFilter] = useState<TradeFilter>("all");
+  const [leadersPage, setLeadersPage] = useState(1);
+  const [leadersDisplayCount, setLeadersDisplayCount] = useState(10);
+  const [loadingMoreLeaders, setLoadingMoreLeaders] = useState(false);
 
   // fetch leaderboard whenever timeframe changes
   useEffect(() => {
@@ -33,6 +36,8 @@ export default function TradersPage() {
       setSelected(l[0]);
       setPage(1);
       setTradeFilter("all");
+      setLeadersPage(1);
+      setLeadersDisplayCount(Math.min(10, l.length || 10));
     })();
     return () => {
       mounted = false;
@@ -74,6 +79,32 @@ export default function TradersPage() {
 
   const handlePrev = () => setPage((p) => Math.max(1, p - 1));
   const handleNext = () => setPage((p) => Math.min(totalPages, p + 1));
+
+  // show next 10 leaders (fetch next page if needed)
+  const handleShowMoreLeaders = async () => {
+    if (loadingMoreLeaders) return;
+    // already have enough loaded, just increase visible count
+    if (leadersDisplayCount + 10 <= leaders.length) {
+      setLeadersDisplayCount((c) => c + 10);
+      return;
+    }
+    // fetch next page and append
+    setLoadingMoreLeaders(true);
+    try {
+      const nextPage = leadersPage + 1;
+      const more = await fetchLeaderboard(timeframe, nextPage, 10);
+      setLeaders((prev) => [...prev, ...more]);
+      setLeadersPage(nextPage);
+      setLeadersDisplayCount((c) => c + (more?.length || 0));
+    } finally {
+      setLoadingMoreLeaders(false);
+    }
+  };
+
+  // reduce visible leaders by 10, minimum 10
+  const handleShowFewerLeaders = () => {
+    setLeadersDisplayCount((c) => Math.max(10, c - 10));
+  };
 
   return (
     <div className="space-y-6">
@@ -117,7 +148,7 @@ export default function TradersPage() {
 
       {/* trader pills */}
       <div className="flex flex-wrap gap-2">
-        {leaders.map((u) => (
+        {leaders.slice(0, leadersDisplayCount).map((u) => (
           <TraderBubble
             key={u.user_id}
             leader={u}
@@ -125,6 +156,35 @@ export default function TradersPage() {
             onSelect={setSelected}
           />
         ))}
+        {/* controls to show more/less traders */}
+        <button
+          onClick={handleShowMoreLeaders}
+          disabled={loadingMoreLeaders}
+          className={`
+            flex items-center gap-2 rounded-full border px-3 py-1.5
+            backdrop-blur-md transition-colors cursor-pointer
+            bg-slate-700/30 text-slate-100 border-slate-700/40
+            hover:bg-gradient-to-r hover:from-sky-400/40 hover:via-sky-300/30 hover:to-emerald-300/30
+            hover:text-white/90 hover:border-sky-200/20 hover:shadow-sm
+            ${loadingMoreLeaders ? 'opacity-60 cursor-not-allowed' : ''}
+          `}
+        >
+          <span className="text-sm font-medium">+10</span>
+        </button>
+        {leadersDisplayCount > 10 && (
+          <button
+            onClick={handleShowFewerLeaders}
+            className={`
+              flex items-center gap-2 rounded-full border px-3 py-1.5
+              backdrop-blur-md transition-colors cursor-pointer
+              bg-slate-700/30 text-slate-100 border-slate-700/40
+              hover:bg-gradient-to-r hover:from-sky-400/40 hover:via-sky-300/30 hover:to-emerald-300/30
+              hover:text-white/90 hover:border-sky-200/20 hover:shadow-sm
+            `}
+          >
+            <span className="text-sm font-medium">-10</span>
+          </button>
+        )}
       </div>
 
       {/* glass panel */}
@@ -161,7 +221,7 @@ export default function TradersPage() {
                 }}
                 className={`px-3 py-1 text-[0.65rem] font-medium rounded-full transition-all
                   ${tradeFilter === "all"
-                    ? "bg-gradient-to-r from-sky-500/80 to-emerald-400/70 text-slate-950 shadow-sm"
+                    ? "bg-linear-to-r from-sky-500/80 to-emerald-400/70 text-slate-950 shadow-sm"
                     : "text-slate-100/70 hover:text-slate-50"
                   }`}
               >
@@ -274,8 +334,8 @@ export default function TradersPage() {
           </div>
 
           {/* fades */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-slate-950/70 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-slate-950/80 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-4 bg-linear-to-b from-slate-950/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-5 bg-linear-to-t from-slate-950/80 to-transparent" />
         </div>
 
         {/* pagination */}
@@ -294,7 +354,7 @@ export default function TradersPage() {
                   transition-all
                   ${page === 1
                     ? "bg-slate-900/10 text-slate-500 cursor-not-allowed"
-                    : "bg-slate-900/30 text-slate-50 border border-slate-100/10 hover:bg-gradient-to-r hover:from-sky-500/40 hover:to-emerald-400/40"
+                    : "bg-slate-900/30 text-slate-50 border border-slate-100/10 hover:bg-linear-to-r hover:from-sky-500/40 hover:to-emerald-400/40"
                   }
                 `}
               >
@@ -308,7 +368,7 @@ export default function TradersPage() {
                   transition-all
                   ${page === totalPages
                     ? "bg-slate-900/10 text-slate-500 cursor-not-allowed"
-                    : "bg-slate-900/30 text-slate-50 border border-slate-100/10 hover:bg-gradient-to-r hover:from-sky-500/40 hover:to-emerald-400/40"
+                    : "bg-slate-900/30 text-slate-50 border border-slate-100/10 hover:bg-linear-to-r hover:from-sky-500/40 hover:to-emerald-400/40"
                   }
                 `}
               >
